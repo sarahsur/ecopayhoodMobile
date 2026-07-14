@@ -1,0 +1,25 @@
+name: ecopayhood
+description: A new Flutter project.
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^8.1.0 
+  pin_code_fields: ^8.0.1  
+  stop_watch_timer: ^3.1.1 
+  qr_flutter: ^4.1.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+  - assets/Rectangle5.png 
+  - assets/Logo.png
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
