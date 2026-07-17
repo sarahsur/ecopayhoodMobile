@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'verifOTP.dart'; 
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();

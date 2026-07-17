@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart'; 
-import 'homePage.dart';
-// import 'verifOTP.dart'; 
-// import 'add_address_page.dart'; 
-// import 'qr_generator.dart';
-void main() { 
+import 'package:flutter/services.dart';
+import 'splash_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp()); 
 } 
   
@@ -13,15 +18,13 @@ class MyApp extends StatelessWidget {
   @override 
   Widget build(BuildContext context) { 
     return MaterialApp( 
-      title: 'ecoPayhood', 
-      theme: ThemeData( 
-        primarySwatch: Colors.blue, 
+      title: 'EcoPayhood', 
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true, 
       ), 
-      home: const HomePage(),
-      // home: const VerifOTPWidget(), 
-      // home: const AddAddressPage(),
-      // home: QrUserScreen(),
+      home: const SplashScreen(),
     ); 
   } 
 } 
