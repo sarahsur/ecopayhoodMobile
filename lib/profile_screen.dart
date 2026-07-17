@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'landing_screen.dart';
+import 'edit_profile.dart';
+import 'edit_alamat.dart';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -52,7 +54,14 @@ class ProfileScreen extends StatelessWidget {
             ProfileMenuTile(
               icon: Icons.edit,
               label: 'Edit Profile',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfileScreen(),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 16),
@@ -60,7 +69,14 @@ class ProfileScreen extends StatelessWidget {
             ProfileMenuTile(
               icon: Icons.location_on,
               label: 'Address',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditAlamatScreen(),
+                  ),
+                );
+              },
             ),
 
             // ── Push logout to bottom ─────────────────────────────────────
@@ -143,7 +159,7 @@ class _ProfileAvatar extends StatelessWidget {
         ),
         child: ClipOval(
           child: Image.asset(
-            'lib/Assets/S.png',
+            'lib/Assets/H.png',
             width: 110,
             height: 110,
             fit: BoxFit.cover,

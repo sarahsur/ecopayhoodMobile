@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +20,7 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
   // Pengganti _model bawaan FlutterFlow
   final TextEditingController _pinCodeController = TextEditingController();
   final FocusNode _pinCodeFocusNode = FocusNode();
-  
+
   // Setup StopWatchTimer untuk menghitung mundur OTP
   late final StopWatchTimer _stopWatchTimer;
   final int _timerInitialTimeMs = 60000; //60 detik (60000 ms)
@@ -29,7 +30,7 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
   @override
   void initState() {
     super.initState();
-    
+
     // Inisialisasi timer hitung mundur
     _stopWatchTimer = StopWatchTimer(
       mode: StopWatchMode.countDown,
@@ -55,7 +56,8 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Colors.white, // Mengganti primaryBackground FlutterFlow
+        backgroundColor:
+            Colors.white, // Mengganti primaryBackground FlutterFlow
         body: SafeArea(
           top: true,
           child: Padding(
@@ -102,7 +104,7 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
                           const TextSpan(
                             text: '. Masukkan kode tersebut untuk melanjutkan.',
                             style: TextStyle(color: Colors.black87),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -177,9 +179,7 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
                       children: [
                         TextSpan(
                           text: 'Belum menerima kode? ',
-                          style: GoogleFonts.inter(
-                            color: Colors.black54,
-                          ),
+                          style: GoogleFonts.inter(color: Colors.black54),
                         ),
                         WidgetSpan(
                           child: GestureDetector(
@@ -204,10 +204,14 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    print('Kode yang dimasukkan: ${_pinCodeController.text}');
+                    if (kDebugMode) {
+                      print('Kode yang dimasukkan: ${_pinCodeController.text}');
+                    }
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const AddAddressPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const AddAddressPage(),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
