@@ -70,7 +70,7 @@ class LandingScreen extends StatelessWidget {
                                   Align(
                                     alignment: Alignment.center,
                                     child: Image.asset(
-                                      'lib/Assets/G.png',
+                                      'assets/G.png',
                                       width: 180,
                                       fit: BoxFit.contain,
                                     ),
@@ -81,7 +81,7 @@ class LandingScreen extends StatelessWidget {
                                     left: 90,
                                     top: 5,
                                     child: _buildFloatingMascot(
-                                      'lib/Assets/M.png',
+                                      'assets/M.png',
                                     ),
                                   ),
 
@@ -90,7 +90,7 @@ class LandingScreen extends StatelessWidget {
                                     top: 5,
                                     left: 180,
                                     child: _buildFloatingMascot(
-                                      'lib/Assets/K.png',
+                                      'assets/K.png',
                                     ),
                                   ),
 
@@ -99,7 +99,7 @@ class LandingScreen extends StatelessWidget {
                                     right: 7,
                                     top: 47,
                                     child: _buildFloatingMascot(
-                                      'lib/Assets/S.png',
+                                      'assets/S.png',
                                     ),
                                   ),
 
@@ -108,7 +108,7 @@ class LandingScreen extends StatelessWidget {
                                     right: 0,
                                     top: 145,
                                     child: _buildFloatingMascot(
-                                      'lib/Assets/O.png',
+                                      'assets/O.png',
                                     ),
                                   ),
                                 ],
