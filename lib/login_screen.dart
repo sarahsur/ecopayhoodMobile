@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             // 1. Top Illustration
                             Center(
                               child: Image.asset(
-                                'lib/Assets/G.png',
+                                'assets/G.png',
                                 height: mascotHeight,
                                 fit: BoxFit.contain,
                               ),
@@ -376,7 +376,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               14.0,
                                             ), // Proportional icon sizing
                                             child: Image.asset(
-                                              'lib/Assets/logogoogle.png',
+                                              'assets/logogoogle.png',
                                               fit: BoxFit.contain,
                                             ),
                                           ),
@@ -412,7 +412,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               14.0,
                                             ), // Proportional icon sizing
                                             child: Image.asset(
-                                              'lib/Assets/logoemail.png',
+                                              'assets/logoemail.png',
                                               fit: BoxFit.contain,
                                             ),
                                           ),
