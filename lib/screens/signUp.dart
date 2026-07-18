@@ -2,6 +2,8 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/auth_service.dart';
+import '../services/user_service.dart';
 import 'verifOTP.dart';
 
 class SignUp extends StatefulWidget {
@@ -18,6 +20,10 @@ class _SignUpState extends State<SignUp> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _passconfir = TextEditingController();
+  final _authService = AuthService();
+  final _userService = UserService();
+
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -57,6 +63,56 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
+  Future<void> _submitRegister() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final passwordConfirmation = _passconfir.text.trim();
+
+    if (password != passwordConfirmation) {
+      _showSnackBar('Konfirmasi kata sandi tidak sama');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final credential = await _authService.registerWithEmail(
+        email: email,
+        password: password,
+        name: name,
+      );
+
+      final user = credential.user;
+      if (user != null) {
+        await _userService.saveBasicUser(
+          uid: user.id,
+          name: name,
+          email: user.email ?? email,
+        );
+      }
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const VerifOTPWidget()),
+      );
+    } catch (error) {
+      _showSnackBar(error.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -68,8 +124,8 @@ class _SignUpState extends State<SignUp> {
             children: [
               Align(
                 alignment: Alignment.bottomCenter,
-                child: Image.network(
-                  'assets/images/H.png',
+                child: Image.asset(
+                  'assets/H.png',
                   width: MediaQuery.of(context).size.width,
                   height: 446,
                   fit: BoxFit.fill,
@@ -79,8 +135,8 @@ class _SignUpState extends State<SignUp> {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-                    Image.network(
-                      'assets/images/H.png',
+                    Image.asset(
+                      'assets/H.png',
                       width: 205,
                       height: 167,
                       fit: BoxFit.cover,
@@ -171,19 +227,10 @@ class _SignUpState extends State<SignUp> {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                   ),
-                                  onPressed: () {
-                                    // Validasi dulu, kalau aman baru gas pindah halaman!
-                                    if (_formKey.currentState!.validate()) {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const VerifOTPWidget(),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: const Text("Buat Akun"),
+                                  onPressed: _isLoading ? null : _submitRegister,
+                                  child: Text(
+                                    _isLoading ? 'Memproses...' : 'Buat Akun',
+                                  ),
                                 ),
                               ),
                             ],

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'landing_screen.dart';
 import 'edit_profile.dart';
 import 'edit_alamat.dart';
+import '../models/app_user.dart';
+import '../services/auth_service.dart';
+import '../services/user_service.dart';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -19,6 +22,8 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProfileFuture = UserService().getCurrentUserProfile();
+
     return Scaffold(
       backgroundColor: _kWhite,
       body: SafeArea(
@@ -36,15 +41,23 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            const Center(
-              child: Text(
-                'Bima Sakti',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: _kTextDark,
-                ),
-              ),
+            FutureBuilder<AppUser?>(
+              future: userProfileFuture,
+              builder: (context, snapshot) {
+                final name = snapshot.data?.name;
+                return Center(
+                  child: Text(
+                    name == null || name.trim().isEmpty
+                        ? 'Warga Ecopayhood'
+                        : name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: _kTextDark,
+                    ),
+                  ),
+                );
+              },
             ),
 
             // ── 30px gap before menu ──────────────────────────────────────
@@ -159,7 +172,7 @@ class _ProfileAvatar extends StatelessWidget {
         ),
         child: ClipOval(
           child: Image.asset(
-            'lib/Assets/H.png',
+            'assets/H.png',
             width: 110,
             height: 110,
             fit: BoxFit.cover,
@@ -262,7 +275,11 @@ class _LogoutButton extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(28),
-            onTap: () {
+            onTap: () async {
+              await AuthService().logout();
+
+              if (!context.mounted) return;
+
               // Logout: hapus seluruh halaman setelah login dari stack
               // (Dashboard, Profile, dll) dan jadikan LandingScreen sebagai
               // root baru. Predicate `(route) => false` berarti tidak ada

@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Screens
-import 'splash_screen.dart';
-import 'landing_screen.dart';
-import 'login_screen.dart';
-import 'signUp.dart';
-import 'verifOTP.dart';
-import 'dashboard_page.dart';
-import 'profile_screen.dart';
-import 'notification_page.dart';
-import 'qr_generator.dart';
-import 'add_address_page.dart';
+import 'core/routes/app_routes.dart';
+import 'services/supabase_service.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const EcoPayhoodApp());
+  try {
+    if (!SupabaseConfig.isConfigured) {
+      throw StateError(
+        'SUPABASE_URL dan SUPABASE_ANON_KEY belum diisi lewat --dart-define',
+      );
+    }
+
+    await Supabase.initialize(
+      url: SupabaseConfig.url,
+      anonKey: SupabaseConfig.anonKey,
+    );
+
+    runApp(const EcoPayhoodApp());
+  } catch (error) {
+    runApp(BackendSetupErrorApp(error: error));
+  }
 }
 
 class EcoPayhoodApp extends StatelessWidget {
@@ -32,40 +39,8 @@ class EcoPayhoodApp extends StatelessWidget {
         colorSchemeSeed: Colors.green,
       ),
 
-      // Halaman pertama
-      initialRoute: '/',
-
-      routes: {
-        // Splash
-        '/': (context) => const SplashScreen(),
-
-        // Landing
-        '/landing': (context) => const LandingScreen(),
-
-        // Login
-        '/login': (context) => const LoginScreen(),
-
-        // Register
-        '/signup': (context) => const SignUp(),
-
-        // OTP
-        '/otp': (context) => const VerifOTPWidget(),
-
-        // Dashboard
-        '/dashboard': (context) => const HomePage(),
-
-        // Profile
-        '/profile': (context) => const ProfileScreen(),
-
-        // Notification
-        '/notification': (context) => const NotificationPage(),
-
-        // QR
-        '/qr': (context) => QrUserScreen(),
-
-        // Add Address
-        '/add-address': (context) => const AddAddressPage(),
-      },
+      initialRoute: AppRoutes.splash,
+      routes: AppRoutes.routes,
 
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
@@ -83,6 +58,52 @@ class EcoPayhoodApp extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class BackendSetupErrorApp extends StatelessWidget {
+  final Object error;
+
+  const BackendSetupErrorApp({
+    super.key,
+    required this.error,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.warning_amber, color: Colors.orange, size: 48),
+                const SizedBox(height: 16),
+                const Text(
+                  'Supabase belum siap',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Jalankan aplikasi dengan SUPABASE_URL dan '
+                  'SUPABASE_ANON_KEY dari project Supabase.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  error.toString(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

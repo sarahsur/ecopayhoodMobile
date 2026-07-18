@@ -1,13 +1,13 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'constants/app_colors.dart';
-import 'constants/app_textstyle.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_textstyle.dart';
 
 class PickupConfirmationPage extends StatelessWidget {
   final String category;
   final String amount;
   final String unit;
-  final VoidCallback onConfirm;
+  final Future<void> Function() onConfirm;
 
   const PickupConfirmationPage({
     super.key,
@@ -60,9 +60,16 @@ class PickupConfirmationPage extends StatelessWidget {
                   width: 280,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Call the onConfirm callback
-                      onConfirm();
+                    onPressed: () async {
+                      try {
+                        await onConfirm();
+                      } catch (error) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(error.toString())),
+                        );
+                        return;
+                      }
 
                       // Kembali ke Dashboard (HomePage) yang sudah ada di
                       // navigation stack — bukan ke LandingScreen, dan tidak

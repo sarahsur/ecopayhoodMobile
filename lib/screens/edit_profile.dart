@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/user_service.dart';
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -25,6 +27,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _usernameController = TextEditingController();
   final _fullNameController = TextEditingController();
   final _whatsappController = TextEditingController();
+  final _userService = UserService();
+
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
 
   @override
   void dispose() {
@@ -34,19 +45,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _onSave() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile updated successfully.'),
-        backgroundColor: _kGreen,
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 1),
-      ),
-    );
+  Future<void> _loadProfile() async {
+    final user = await _userService.getCurrentUserProfile();
+    if (user == null || !mounted) return;
 
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) Navigator.pop(context);
-    });
+    _usernameController.text = user.email;
+    _fullNameController.text = user.name;
+    _whatsappController.text = user.phone;
+  }
+
+  Future<void> _onSave() async {
+    final name = _fullNameController.text.trim().isEmpty
+        ? _usernameController.text.trim()
+        : _fullNameController.text.trim();
+    final phone = _whatsappController.text.trim();
+
+    setState(() => _isSaving = true);
+
+    try {
+      await _userService.saveCurrentUserProfile(
+        name: name,
+        phone: phone,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile berhasil disimpan.'),
+          backgroundColor: _kGreen,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 1),
+        ),
+      );
+
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        if (mounted) Navigator.pop(context);
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -103,7 +144,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               // ── Save Button ──────────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: _SaveButton(label: 'Simpan', onPressed: _onSave),
+                child: _SaveButton(
+                  label: _isSaving ? 'Menyimpan...' : 'Simpan',
+                  onPressed: _isSaving ? null : _onSave,
+                ),
               ),
 
               const SizedBox(height: 32),
@@ -273,7 +317,7 @@ class _SaveButton extends StatelessWidget {
   const _SaveButton({required this.label, required this.onPressed});
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

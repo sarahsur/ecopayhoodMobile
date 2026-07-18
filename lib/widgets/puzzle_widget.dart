@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'models/waste_category.dart';
+import '../models/waste_category.dart';
 
 /// Reusable puzzle widget that uses PNG images instead of CustomPainter.
 /// Displays a puzzle piece with category icon and text overlay.

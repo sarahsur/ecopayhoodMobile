@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/user_service.dart';
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -26,6 +28,15 @@ class _EditAlamatScreenState extends State<EditAlamatScreen> {
   final _fullNameController = TextEditingController();
   final _streetController = TextEditingController();
   final _detailsController = TextEditingController();
+  final _userService = UserService();
+
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAddress();
+  }
 
   @override
   void dispose() {
@@ -35,19 +46,48 @@ class _EditAlamatScreenState extends State<EditAlamatScreen> {
     super.dispose();
   }
 
-  void _onSaveAddress() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Address saved successfully.'),
-        backgroundColor: _kGreen,
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 1),
-      ),
-    );
+  Future<void> _loadAddress() async {
+    final user = await _userService.getCurrentUserProfile();
+    if (user == null || !mounted) return;
 
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) Navigator.pop(context);
-    });
+    _fullNameController.text = user.name;
+    _streetController.text = user.address;
+    _detailsController.text = user.addressDetail;
+  }
+
+  Future<void> _onSaveAddress() async {
+    setState(() => _isSaving = true);
+
+    try {
+      final profile = await _userService.getCurrentUserProfile();
+
+      await _userService.saveCurrentUserAddress(
+        name: _fullNameController.text.trim(),
+        phone: profile?.phone ?? '',
+        address: _streetController.text.trim(),
+        addressDetail: _detailsController.text.trim(),
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Alamat berhasil disimpan.'),
+          backgroundColor: _kGreen,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 1),
+        ),
+      );
+
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        if (mounted) Navigator.pop(context);
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -82,8 +122,8 @@ class _EditAlamatScreenState extends State<EditAlamatScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: _SaveButton(
-                  label: 'Simpan Alamat',
-                  onPressed: _onSaveAddress,
+                  label: _isSaving ? 'Menyimpan...' : 'Simpan Alamat',
+                  onPressed: _isSaving ? null : _onSaveAddress,
                 ),
               ),
 
@@ -318,7 +358,7 @@ class _SaveButton extends StatelessWidget {
   const _SaveButton({required this.label, required this.onPressed});
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

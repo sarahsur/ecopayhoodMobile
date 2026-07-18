@@ -1,10 +1,13 @@
-import 'puzzle_widget.dart';
+import '../widgets/puzzle_widget.dart';
 import 'package:flutter/material.dart';
-import 'constants/app_colors.dart';
-import 'constants/app_sizes.dart';
-import 'constants/app_textstyle.dart';
-import 'models/waste_category.dart';
-import 'providers/notification_provider.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_sizes.dart';
+import '../constants/app_textstyle.dart';
+import '../models/app_user.dart';
+import '../models/waste_category.dart';
+import '../providers/notification_provider.dart';
+import '../services/pickup_request_service.dart';
+import '../services/user_service.dart';
 import 'pickup_confirmation_page.dart';
 
 /// Single reusable detail page for ALL waste categories.
@@ -74,10 +77,21 @@ class CategoryDetailPage extends StatelessWidget {
                         style: AppTextStyle.alamatTitle,
                       ),
                       const SizedBox(height: AppSizes.spacingBelowAlamatTitle),
-                      AddressCard(
-                        name: 'Bima',
-                        phone: '(+62) 863-7762-9900',
-                        address: 'Rt.08/Rw.11,\nJalan Ayu Jalan Blok JA No.24,\nSukajaya, Kuningan',
+                      FutureBuilder<AppUser?>(
+                        future: UserService().getCurrentUserProfile(),
+                        builder: (context, snapshot) {
+                          final user = snapshot.data;
+
+                          return AddressCard(
+                            name: user?.name ?? 'Warga',
+                            phone: user?.phone ?? '-',
+                            address: [
+                              user?.address ?? 'Alamat belum diisi',
+                              if ((user?.addressDetail ?? '').isNotEmpty)
+                                user!.addressDetail,
+                            ].join('\n'),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -100,8 +114,13 @@ class CategoryDetailPage extends StatelessWidget {
                             category: category.title,
                             amount: '2',
                             unit: 'kg',
-                            onConfirm: () {
-                              notificationProvider.addPickupNotification(
+                            onConfirm: () async {
+                              await PickupRequestService().createPickupRequest(
+                                category: category.title,
+                                amount: '2',
+                                unit: 'kg',
+                              );
+                              await notificationProvider.addPickupNotification(
                                 category: category.title,
                                 amount: '2',
                                 unit: 'kg',

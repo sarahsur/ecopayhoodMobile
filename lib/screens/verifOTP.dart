@@ -47,6 +47,38 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
     super.dispose();
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  void _verifyOtp() {
+    final otp = _pinCodeController.text.trim();
+
+    if (kDebugMode) {
+      debugPrint('Kode yang dimasukkan: $otp');
+    }
+
+    if (otp.length != 6) {
+      _showSnackBar('Kode OTP harus 6 digit');
+      return;
+    }
+
+    if (otp != '123456') {
+      _showSnackBar('OTP demo salah. Gunakan 123456 untuk kelas Day 2');
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddAddressPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -185,7 +217,7 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
                           child: GestureDetector(
                             onTap: () {
                               // Aksi kirim ulang OTP disini
-                              print('Kirim ulang OTP dipicu...');
+                              debugPrint('Kirim ulang OTP dipicu...');
                               _stopWatchTimer.onResetTimer();
                               _stopWatchTimer.onStartTimer();
                             },
@@ -203,17 +235,7 @@ class _VerifOTPWidgetState extends State<VerifOTPWidget> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    if (kDebugMode) {
-                      print('Kode yang dimasukkan: ${_pinCodeController.text}');
-                    }
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddAddressPage(),
-                      ),
-                    );
-                  },
+                  onPressed: _verifyOtp,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,

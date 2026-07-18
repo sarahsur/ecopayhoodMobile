@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dashboard_page.dart';
+import '../services/auth_service.dart';
+import '../services/user_service.dart';
+import 'signUp.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,7 +15,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  final UserService _userService = UserService();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -38,6 +44,70 @@ class _LoginScreenState extends State<LoginScreen> {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  Future<void> _submitLogin() async {
+    final email = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showSnackBar('Email dan kata sandi wajib diisi');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.signInWithEmail(email: email, password: password);
+
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomePage(),
+          settings: const RouteSettings(name: '/dashboard'),
+        ),
+      );
+    } catch (error) {
+      _showSnackBar(error.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final started = await _authService.signInWithGoogle();
+      if (!started) {
+        _showSnackBar('Login Google dibatalkan');
+        return;
+      }
+
+      final user = _authService.currentUser;
+
+      if (user != null) {
+        await _userService.saveBasicUser(
+          uid: user.id,
+          name: user.userMetadata?['name']?.toString() ?? 'Warga Ecopayhood',
+          email: user.email ?? '',
+        );
+
+        if (!mounted) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const HomePage(),
+            settings: const RouteSettings(name: '/dashboard'),
+          ),
+        );
+      } else {
+        _showSnackBar('Ikuti proses login Google di browser');
+      }
+    } catch (error) {
+      _showSnackBar(error.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Widget _buildLabel(String text) {
@@ -229,11 +299,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     height: 12,
                                   ), // Reduced internal spacing
                                   // Username Field
-                                  _buildLabel('Nama Pengguna'),
+                                  _buildLabel('Email'),
                                   _buildTextField(
                                     controller: _usernameController,
-                                    hintText: 'Masukkan nama pengguna',
-                                    prefixIcon: Icons.person_outline,
+                                    hintText: 'Masukkan email',
+                                    prefixIcon: Icons.email_outlined,
                                   ),
                                   const SizedBox(
                                     height: 8,
@@ -303,14 +373,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ],
                                       ),
                                       child: ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pushReplacement(
-                                            MaterialPageRoute(
-                                              builder: (context) => const HomePage(),
-                                              settings: const RouteSettings(name: '/dashboard'),
-                                            ),
-                                          );
-                                        },
+                                  onPressed: _isLoading ? null : _submitLogin,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color(
                                             0xFF4CAF50,
@@ -324,7 +387,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                         ),
                                         child: Text(
-                                          'Masuk',
+                                          _isLoading ? 'Memproses...' : 'Masuk',
                                           style: GoogleFonts.montserrat(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -357,11 +420,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   children: [
                                     // Google Login Button
                                     GestureDetector(
-                                      onTap: () {
-                                        _showSnackBar(
-                                          'Google Login Coming Soon',
-                                        );
-                                      },
+                                      onTap: _isLoading ? null : _signInWithGoogle,
                                       child: Container(
                                         width: 56, // Approx 56 px diameter
                                         height: 56,
@@ -394,9 +453,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     // Email Button
                                     GestureDetector(
                                       onTap: () {
-                                        _showSnackBar(
-                                          'Email Login Coming Soon',
-                                        );
+                                        FocusScope.of(context).unfocus();
+                                        _showSnackBar('Silakan isi email dan kata sandi di form');
                                       },
                                       child: Container(
                                         width: 56, // Approx 56 px diameter
@@ -446,8 +504,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 GestureDetector(
                                   onTap: () {
-                                    _showSnackBar(
-                                      'Registration Screen Coming Soon',
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const SignUp(),
+                                      ),
                                     );
                                   },
                                   child: Text(

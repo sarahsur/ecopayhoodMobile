@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dashboard_page.dart';
+import '../services/user_service.dart';
 
 class AddAddressPage extends StatefulWidget {
   const AddAddressPage({super.key});
@@ -17,6 +18,9 @@ class _AddAddressPageState extends State<AddAddressPage> {
   final whatsapp = TextEditingController();
   final address = TextEditingController();
   final detail = TextEditingController();
+  final _userService = UserService();
+
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -54,6 +58,40 @@ class _AddAddressPageState extends State<AddAddressPage> {
     );
   }
 
+  Future<void> _submitAddress() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      await _userService.saveCurrentUserAddress(
+        name: fullname.text.trim(),
+        phone: whatsapp.text.trim(),
+        address: address.text.trim(),
+        addressDetail: detail.text.trim(),
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Alamat berhasil disimpan')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomePage(),
+          settings: const RouteSettings(name: '/dashboard'),
+        ),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -64,7 +102,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
           child: Stack(children: [
             Align(
               alignment: Alignment.bottomCenter,
-              child: Image.network(
+              child: Image.asset(
                 'assets/Rectangle5.png',
                 width: MediaQuery.of(context).size.width,
                 height: 446,
@@ -123,21 +161,12 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20))),
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content:
-                                            Text("Alamat berhasil disimpan")));
-                              }
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const HomePage(),
-                                    settings: const RouteSettings(name: '/dashboard')),
-                              );
-                            },
-                            child: const Text("Simpan & Konfirmasi"),
+                            onPressed: _isSubmitting ? null : _submitAddress,
+                            child: Text(
+                              _isSubmitting
+                                  ? 'Menyimpan...'
+                                  : 'Simpan & Konfirmasi',
+                            ),
                           ),
                         )
                       ]),

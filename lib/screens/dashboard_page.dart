@@ -1,14 +1,19 @@
-import 'puzzle_widget.dart';
+import '../widgets/puzzle_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'constants/app_colors.dart';
-import 'constants/app_textstyle.dart';
-import 'constants/app_sizes.dart';
-import 'data/waste_category_data.dart';
-import 'models/waste_category.dart';
-import 'providers/notification_provider.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_textstyle.dart';
+import '../constants/app_sizes.dart';
+import '../data/waste_category_data.dart';
+import '../models/app_user.dart';
+import '../models/pickup_request.dart';
+import '../models/waste_category.dart';
+import '../providers/notification_provider.dart';
+import '../services/pickup_request_service.dart';
+import '../services/user_service.dart';
 import 'category_detail_page.dart';
 import 'notification_page.dart';
+import 'pickup_request_list_page.dart';
 import 'profile_screen.dart';
 import 'qr_generator.dart';
 
@@ -22,8 +27,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentNavIndex = 0;
   final NotificationProvider _notificationProvider = NotificationProvider();
+  final UserService _userService = UserService();
+  late final Future<AppUser?> _userProfileFuture;
 
   final List<WasteCategory> _categories = wasteCategories;
+
+  @override
+  void initState() {
+    super.initState();
+    _userProfileFuture = _userService.getCurrentUserProfile();
+    _notificationProvider.loadNotifications();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +107,21 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('Hi, Bima Sakti', style: AppTextStyle.greeting),
+                      FutureBuilder<AppUser?>(
+                        future: _userProfileFuture,
+                        builder: (context, snapshot) {
+                          final name = snapshot.data?.name;
+                          final displayName =
+                              name == null || name.trim().isEmpty
+                                  ? 'Warga'
+                                  : name;
+
+                          return Text(
+                            'Hi, $displayName',
+                            style: AppTextStyle.greeting,
+                          );
+                        },
+                      ),
                       Row(
                         children: [
                           GestureDetector(
@@ -169,9 +197,10 @@ class _HomePageState extends State<HomePage> {
                     height: buttonH,
                     child: SubmitWasteButton(
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Membuka list sampah diajukan...'),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PickupRequestListPage(),
                           ),
                         );
                       },
@@ -357,35 +386,53 @@ class PickupScheduleCard extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // Status text
-          RichText(
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Status : ',
-                  style: AppTextStyle.poppins(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                  ),
-                ),
-                TextSpan(
-                  text:
-                      'Tidak ada penjemputan, Penjemputan berikutnya dalam 1 hari',
-                  style: AppTextStyle.poppins(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+          FutureBuilder<List<PickupRequest>>(
+            future: PickupRequestService().getCurrentUserRequests(),
+            builder: (context, snapshot) {
+              final requests = snapshot.data ?? [];
+              final latestRequest = requests.isEmpty ? null : requests.first;
+
+              return _buildStatusText(_statusText(latestRequest));
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusText(String text) {
+    return RichText(
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: 'Status : ',
+            style: AppTextStyle.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          TextSpan(
+            text: text,
+            style: AppTextStyle.poppins(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _statusText(PickupRequest? request) {
+    if (request == null) {
+      return 'Tidak ada penjemputan, Penjemputan berikutnya dalam 1 hari';
+    }
+
+    return 'Request "${request.category}" sudah masuk dan menunggu Greenie';
   }
 
   Widget _buildCapsule(String text) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'constants/app_colors.dart';
-import 'constants/app_textstyle.dart';
-import 'models/notification_model.dart';
-import 'providers/notification_provider.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_textstyle.dart';
+import '../models/notification_model.dart';
+import '../providers/notification_provider.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -17,10 +17,10 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
-    // Mark all notifications as read when page opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _notificationProvider.markAllAsRead();
-      setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _notificationProvider.loadNotifications();
+      await _notificationProvider.markAllAsRead();
+      if (mounted) setState(() {});
     });
   }
 
@@ -77,6 +77,11 @@ class _NotificationPageState extends State<NotificationPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (_notificationProvider.isLoading)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
           // Pickup notifications (no group label for new notifications)
           _buildPickupNotifications(),
           
