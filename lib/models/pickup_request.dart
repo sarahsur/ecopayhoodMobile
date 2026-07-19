@@ -5,6 +5,8 @@ class PickupRequest {
   final String amount;
   final String unit;
   final String status;
+  final String? collectorId;
+  final DateTime? pickedUpAt;
   final DateTime createdAt;
 
   const PickupRequest({
@@ -14,6 +16,8 @@ class PickupRequest {
     required this.amount,
     required this.unit,
     required this.status,
+    this.collectorId,
+    this.pickedUpAt,
     required this.createdAt,
   });
 
@@ -25,7 +29,10 @@ class PickupRequest {
       amount: map['amount']?.toString() ?? '',
       unit: map['unit'] ?? '',
       status: map['status'] ?? 'scheduled',
-      createdAt: DateTime.tryParse(map['created_at']?.toString() ?? '') ??
+      collectorId: map['collector_id'],
+      pickedUpAt: DateTime.tryParse(map['picked_up_at']?.toString() ?? ''),
+      createdAt:
+          DateTime.tryParse(map['created_at']?.toString() ?? '') ??
           DateTime.now(),
     );
   }

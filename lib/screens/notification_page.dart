@@ -32,7 +32,10 @@ class _NotificationPageState extends State<NotificationPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.darkGreen),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.darkGreen,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: ListenableBuilder(
@@ -53,7 +56,10 @@ class _NotificationPageState extends State<NotificationPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(10),
@@ -82,11 +88,11 @@ class _NotificationPageState extends State<NotificationPage> {
               padding: EdgeInsets.only(bottom: 16),
               child: Center(child: CircularProgressIndicator()),
             ),
-          // Pickup notifications (no group label for new notifications)
-          _buildPickupNotifications(),
-          
+          // New notifications do not use group labels yet.
+          _buildLatestNotifications(),
+
           const SizedBox(height: 24),
-          
+
           // Motivational notifications with group labels
           _buildGroupedNotifications(),
         ],
@@ -94,15 +100,15 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  Widget _buildPickupNotifications() {
+  Widget _buildLatestNotifications() {
     final notifications = _notificationProvider.notifications
-        .where((n) => n.iconType == 'pickup')
+        .where((n) => n.groupLabel == null || n.groupLabel!.trim().isEmpty)
         .toList();
-    
+
     if (notifications.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     return Column(
       children: notifications.map((notification) {
         return NotificationTile(notification: notification);
@@ -112,15 +118,16 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Widget _buildGroupedNotifications() {
     final groups = ['Kemarin', '1 Bulan Lalu', '2 Bulan Lalu'];
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: groups.map((group) {
-        final groupNotifications = _notificationProvider.getNotificationsByGroup(group);
+        final groupNotifications = _notificationProvider
+            .getNotificationsByGroup(group);
         if (groupNotifications.isEmpty) {
           return const SizedBox.shrink();
         }
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -146,14 +153,10 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 }
 
-
 class NotificationTile extends StatelessWidget {
   final NotificationModel notification;
 
-  const NotificationTile({
-    super.key,
-    required this.notification,
-  });
+  const NotificationTile({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {
@@ -232,11 +235,7 @@ class NotificationTile extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Center(
-        child: Icon(
-          _getIconData(),
-          color: AppColors.darkGreen,
-          size: 24,
-        ),
+        child: Icon(_getIconData(), color: AppColors.darkGreen, size: 24),
       ),
     );
   }
@@ -245,6 +244,10 @@ class NotificationTile extends StatelessWidget {
     switch (notification.iconType) {
       case 'pickup':
         return Icons.local_shipping;
+      case 'point':
+        return Icons.stars_rounded;
+      case 'reward':
+        return Icons.card_giftcard;
       case 'motivation':
         return Icons.emoji_events;
       default:

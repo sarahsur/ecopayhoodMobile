@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'landing_screen.dart';
 import 'edit_profile.dart';
 import 'edit_alamat.dart';
+import 'rewards_page.dart';
 import '../models/app_user.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
@@ -60,6 +60,29 @@ class ProfileScreen extends StatelessWidget {
               },
             ),
 
+            const SizedBox(height: 6),
+
+            FutureBuilder<AppUser?>(
+              future: userProfileFuture,
+              builder: (context, snapshot) {
+                final profile = snapshot.data;
+                if (profile == null) return const SizedBox.shrink();
+
+                return Center(
+                  child: Text(
+                    profile.isCollector
+                        ? 'Role: Penjemput Sampah'
+                        : '${profile.points} poin',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: _kGreen,
+                    ),
+                  ),
+                );
+              },
+            ),
+
             // ── 30px gap before menu ──────────────────────────────────────
             const SizedBox(height: 30),
 
@@ -88,6 +111,34 @@ class ProfileScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => const EditAlamatScreen(),
                   ),
+                );
+              },
+            ),
+
+            FutureBuilder<AppUser?>(
+              future: userProfileFuture,
+              builder: (context, snapshot) {
+                final profile = snapshot.data;
+                if (profile == null || profile.isCollector) {
+                  return const SizedBox.shrink();
+                }
+
+                return Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    ProfileMenuTile(
+                      icon: Icons.stars_rounded,
+                      label: 'Tukar Poin',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RewardsPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 );
               },
             ),
@@ -285,10 +336,9 @@ class _LogoutButton extends StatelessWidget {
               // root baru. Predicate `(route) => false` berarti tidak ada
               // route lama yang dipertahankan, jadi tombol back tidak bisa
               // kembali ke Dashboard.
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const LandingScreen()),
-                (route) => false,
-              );
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/landing', (route) => false);
             },
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,

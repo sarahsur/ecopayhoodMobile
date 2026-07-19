@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dashboard_page.dart';
+import '../core/routes/app_routes.dart';
 import '../services/user_service.dart';
 
 class AddAddressPage extends StatefulWidget {
@@ -33,12 +33,18 @@ class _AddAddressPageState extends State<AddAddressPage> {
   }
 
   Widget field(
-      IconData icon, String label, String hint, TextEditingController c) {
+    IconData icon,
+    String label,
+    String hint,
+    TextEditingController c,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(20)),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: TextFormField(
           controller: c,
           decoration: InputDecoration(
@@ -46,8 +52,9 @@ class _AddAddressPageState extends State<AddAddressPage> {
             labelText: label,
             hintText: hint,
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide.none),
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide.none,
+            ),
             filled: true,
             fillColor: Colors.white,
           ),
@@ -72,21 +79,15 @@ class _AddAddressPageState extends State<AddAddressPage> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Alamat berhasil disimpan')),
-      );
-
-      Navigator.pushReplacement(
+      ScaffoldMessenger.of(
         context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-          settings: const RouteSettings(name: '/dashboard'),
-        ),
-      );
+      ).showSnackBar(const SnackBar(content: Text('Alamat berhasil disimpan')));
+
+      Navigator.pushReplacementNamed(context, AppRoutes.roleRedirect);
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -99,83 +100,123 @@ class _AddAddressPageState extends State<AddAddressPage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Stack(children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Image.asset(
-                'assets/Rectangle5.png',
-                width: MediaQuery.of(context).size.width,
-                height: 446,
-                fit: BoxFit.fill,
-              ),
-            ),
-            SingleChildScrollView(
-              child: Column(children: [
-                const SizedBox(height: 16),
-                Image.network(
-                    'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/eco-payhood-22spxq/assets/s17g1tokkf9m/design_lok_home.png',
-                    height: 180),
-                Text("Alamat Pengambilan",
-                    style: GoogleFonts.montserrat(
-                        fontSize: 24, fontWeight: FontWeight.bold)),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                  child: Text(
-                      "Masukkan alamat lengkap tempat sampah akan diambil.",
-                      textAlign: TextAlign.center),
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Image.asset(
+                  'assets/Rectangle5.png',
+                  width: MediaQuery.of(context).size.width,
+                  height: 446,
+                  fit: BoxFit.fill,
                 ),
-                Container(
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff7CC17E),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Column(children: [
-                        Text("Alamat Kontak",
-                            style: GoogleFonts.montserrat(
-                                fontSize: 22, fontWeight: FontWeight.bold)),
-                        field(Icons.account_circle, "Nama Pengguna",
-                            "Masukkan Nama Pengguna", username),
-                        field(Icons.account_circle, "Nama Lengkap",
-                            "Masukkan Nama Lengkap", fullname),
-                        field(Icons.phone_android_outlined, "Nomor WhatsApp",
-                            "Masukkan Nomor WhatsApp", whatsapp),
-                        field(
-                            Icons.location_on,
-                            "Nama Jalan, Gedung, Nomor Rumah",
-                            "Masukkan alamat",
-                            address),
-                        field(Icons.location_on, "Rincian Lainnya",
-                            "Masukkan rincian lainnya", detail),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: 320,
-                          height: 50,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20))),
-                            onPressed: _isSubmitting ? null : _submitAddress,
-                            child: Text(
-                              _isSubmitting
-                                  ? 'Menyimpan...'
-                                  : 'Simpan & Konfirmasi',
-                            ),
-                          ),
-                        )
-                      ]),
+              ),
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    Image.network(
+                      'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/eco-payhood-22spxq/assets/s17g1tokkf9m/design_lok_home.png',
+                      height: 180,
                     ),
-                  ),
-                )
-              ]),
-            )
-          ]),
+                    Text(
+                      "Alamat Pengambilan",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        "Masukkan alamat lengkap tempat sampah akan diambil.",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xff7CC17E),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Column(
+                            children: [
+                              Text(
+                                "Alamat Kontak",
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              field(
+                                Icons.account_circle,
+                                "Nama Pengguna",
+                                "Masukkan Nama Pengguna",
+                                username,
+                              ),
+                              field(
+                                Icons.account_circle,
+                                "Nama Lengkap",
+                                "Masukkan Nama Lengkap",
+                                fullname,
+                              ),
+                              field(
+                                Icons.phone_android_outlined,
+                                "Nomor WhatsApp",
+                                "Masukkan Nomor WhatsApp",
+                                whatsapp,
+                              ),
+                              field(
+                                Icons.location_on,
+                                "Nama Jalan, Gedung, Nomor Rumah",
+                                "Masukkan alamat",
+                                address,
+                              ),
+                              field(
+                                Icons.location_on,
+                                "Rincian Lainnya",
+                                "Masukkan rincian lainnya",
+                                detail,
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: 320,
+                                height: 50,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                  onPressed: _isSubmitting
+                                      ? null
+                                      : _submitAddress,
+                                  child: Text(
+                                    _isSubmitting
+                                        ? 'Menyimpan...'
+                                        : 'Simpan & Konfirmasi',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

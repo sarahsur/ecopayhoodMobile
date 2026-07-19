@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -7,10 +9,7 @@ import '../services/user_service.dart';
 class QrUserScreen extends StatelessWidget {
   final AppUser? appUser;
 
-  const QrUserScreen({
-    super.key,
-    this.appUser,
-  });
+  const QrUserScreen({super.key, this.appUser});
 
   @override
   Widget build(BuildContext context) {
@@ -51,20 +50,18 @@ class QrUserScreen extends StatelessWidget {
 class _QrContent extends StatelessWidget {
   final AppUser appUser;
 
-  const _QrContent({
-    required this.appUser,
-  });
+  const _QrContent({required this.appUser});
 
   @override
   Widget build(BuildContext context) {
-    final qrData = {
+    final qrData = jsonEncode({
       'type': 'ECOPAYHOOD_WARGA',
       'uid': appUser.uid,
       'name': appUser.name,
       'email': appUser.email,
       'phone': appUser.phone,
       'address': appUser.address,
-    }.toString();
+    });
 
     return Scaffold(
       body: Container(
@@ -74,10 +71,7 @@ class _QrContent extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF388E3C),
-              Color(0xFF2E7D32),
-            ],
+            colors: [Color(0xFF388E3C), Color(0xFF2E7D32)],
           ),
         ),
         child: SafeArea(
@@ -91,7 +85,10 @@ class _QrContent extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                     const Text(
@@ -170,7 +167,9 @@ class _QrContent extends StatelessWidget {
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Fitur cetak QR masuk pengembangan berikutnya'),
+                          content: Text(
+                            'Fitur cetak QR masuk pengembangan berikutnya',
+                          ),
                         ),
                       );
                     },

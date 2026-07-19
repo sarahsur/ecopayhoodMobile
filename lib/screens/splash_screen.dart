@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../core/routes/app_routes.dart';
 import '../services/auth_service.dart';
-import '../services/user_service.dart';
-import 'dashboard_page.dart';
 import 'landing_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -26,19 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
     final user = AuthService().currentUser;
     if (user == null) return;
 
-    await UserService().saveBasicUser(
-      uid: user.id,
-      name: user.userMetadata?['name']?.toString() ?? 'Warga Ecopayhood',
-      email: user.email ?? '',
-    );
-
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const HomePage(),
-        settings: const RouteSettings(name: '/dashboard'),
-      ),
-    );
+    Navigator.of(context).pushReplacementNamed(AppRoutes.roleRedirect);
   }
 
   void _navigateToLandingScreen() {

@@ -74,6 +74,26 @@ class UserService {
     });
   }
 
+  Future<AppUser> redeemCurrentUserPoints({
+    required int points,
+    required String rewardName,
+  }) async {
+    final user = _requireCurrentUser();
+
+    final data = await _client
+        .rpc(
+          'redeem_user_points',
+          params: {'p_points': points, 'p_reward_name': rewardName},
+        )
+        .single();
+
+    return AppUser.fromMap({
+      ...Map<String, dynamic>.from(data),
+      'id': user.id,
+      'email': user.email ?? '',
+    });
+  }
+
   User _requireCurrentUser() {
     final user = _client.auth.currentUser;
 

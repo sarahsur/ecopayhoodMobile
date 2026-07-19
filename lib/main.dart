@@ -16,7 +16,7 @@ Future<void> main() async {
 
     await Supabase.initialize(
       url: SupabaseConfig.url,
-      anonKey: SupabaseConfig.anonKey,
+      publishableKey: SupabaseConfig.anonKey,
     );
 
     runApp(const EcoPayhoodApp());
@@ -34,10 +34,7 @@ class EcoPayhoodApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'EcoPayhood',
 
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.green,
-      ),
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
 
       initialRoute: AppRoutes.splash,
       routes: AppRoutes.routes,
@@ -49,10 +46,7 @@ class EcoPayhoodApp extends StatelessWidget {
               child: Text(
                 '404\nHalaman tidak ditemukan',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -65,10 +59,7 @@ class EcoPayhoodApp extends StatelessWidget {
 class BackendSetupErrorApp extends StatelessWidget {
   final Object error;
 
-  const BackendSetupErrorApp({
-    super.key,
-    required this.error,
-  });
+  const BackendSetupErrorApp({super.key, required this.error});
 
   @override
   Widget build(BuildContext context) {

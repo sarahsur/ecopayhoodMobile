@@ -5,6 +5,8 @@ class AppUser {
   final String phone;
   final String address;
   final String addressDetail;
+  final String role;
+  final int points;
 
   const AppUser({
     required this.uid,
@@ -13,9 +15,12 @@ class AppUser {
     required this.phone,
     required this.address,
     required this.addressDetail,
+    this.role = 'warga',
+    this.points = 0,
   });
 
   bool get hasAddress => address.trim().isNotEmpty;
+  bool get isCollector => role == 'penjemput';
 
   factory AppUser.fromMap(Map<String, dynamic> map) {
     return AppUser(
@@ -25,6 +30,8 @@ class AppUser {
       phone: map['phone'] ?? '',
       address: map['address'] ?? '',
       addressDetail: map['address_detail'] ?? map['addressDetail'] ?? '',
+      role: map['role'] ?? 'warga',
+      points: int.tryParse(map['points']?.toString() ?? '') ?? 0,
     );
   }
 
@@ -36,6 +43,8 @@ class AppUser {
       'phone': phone,
       'address': address,
       'address_detail': addressDetail,
+      'role': role,
+      'points': points,
     };
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dashboard_page.dart';
+import '../core/routes/app_routes.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import 'signUp.dart';
@@ -61,12 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await _authService.signInWithEmail(email: email, password: password);
 
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-          settings: const RouteSettings(name: '/dashboard'),
-        ),
-      );
+      Navigator.of(context).pushReplacementNamed(AppRoutes.roleRedirect);
     } catch (error) {
       _showSnackBar(error.toString());
     } finally {
@@ -94,12 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (!mounted) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const HomePage(),
-            settings: const RouteSettings(name: '/dashboard'),
-          ),
-        );
+        Navigator.of(context).pushReplacementNamed(AppRoutes.roleRedirect);
       } else {
         _showSnackBar('Ikuti proses login Google di browser');
       }
@@ -373,7 +363,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ],
                                       ),
                                       child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _submitLogin,
+                                        onPressed: _isLoading
+                                            ? null
+                                            : _submitLogin,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color(
                                             0xFF4CAF50,
@@ -418,9 +410,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // Google Login Button
                                     GestureDetector(
-                                      onTap: _isLoading ? null : _signInWithGoogle,
+                                      onTap: _isLoading
+                                          ? null
+                                          : _signInWithGoogle,
                                       child: Container(
                                         width: 56, // Approx 56 px diameter
                                         height: 56,
@@ -442,41 +435,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                             ), // Proportional icon sizing
                                             child: Image.asset(
                                               'assets/logogoogle.png',
-                                              fit: BoxFit.contain,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 24),
-
-                                    // Email Button
-                                    GestureDetector(
-                                      onTap: () {
-                                        FocusScope.of(context).unfocus();
-                                        _showSnackBar('Silakan isi email dan kata sandi di form');
-                                      },
-                                      child: Container(
-                                        width: 56, // Approx 56 px diameter
-                                        height: 56,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black12,
-                                              blurRadius: 6,
-                                              offset: Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Center(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(
-                                              14.0,
-                                            ), // Proportional icon sizing
-                                            child: Image.asset(
-                                              'assets/logoemail.png',
                                               fit: BoxFit.contain,
                                             ),
                                           ),

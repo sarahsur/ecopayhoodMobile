@@ -55,7 +55,12 @@ class PickupConfirmationPage extends StatelessWidget {
 
               // OKE Button
               Padding(
-                padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 80.0, top: 0.0),
+                padding: const EdgeInsets.only(
+                  left: 24.0,
+                  right: 24.0,
+                  bottom: 80.0,
+                  top: 0.0,
+                ),
                 child: SizedBox(
                   width: 280,
                   height: 50,
@@ -74,6 +79,7 @@ class PickupConfirmationPage extends StatelessWidget {
                       // Kembali ke Dashboard (HomePage) yang sudah ada di
                       // navigation stack — bukan ke LandingScreen, dan tidak
                       // membuat instance HomePage baru.
+                      if (!context.mounted) return;
                       Navigator.popUntil(
                         context,
                         ModalRoute.withName('/dashboard'),
@@ -174,26 +180,27 @@ class BlobPainter extends CustomPainter {
     final baseRadius = (size.width / 2) - 20.0;
 
     final path = Path();
-    
+
     // Create sunflower shape with fewer, larger petals
     final int numPetals = 8;
     final double petalAmplitude = 25.0;
 
     for (double angle = 0; angle <= 2 * math.pi + 0.05; angle += 0.05) {
       // Use a different wave pattern for sunflower petals
-      final waveOffset = petalAmplitude * math.pow(math.sin(numPetals * angle / 2), 2);
-      
+      final waveOffset =
+          petalAmplitude * math.pow(math.sin(numPetals * angle / 2), 2);
+
       final r = baseRadius + waveOffset;
       final x = center.dx + r * math.cos(angle);
       final y = center.dy + r * math.sin(angle);
-      
+
       if (angle == 0) {
         path.moveTo(x, y);
       } else {
         path.lineTo(x, y);
       }
     }
-    
+
     path.close();
     canvas.drawPath(path, paint);
   }
