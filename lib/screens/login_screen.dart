@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../core/routes/app_routes.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
@@ -17,11 +21,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
   final UserService _userService = UserService();
+  StreamSubscription<AuthState>? _authSubscription;
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _hasRedirected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authSubscription = _authService.authStateChanges().listen((state) {
+      final user = state.session?.user;
+      if (user == null || _hasRedirected) return;
+      _handleSignedInUser(user);
+    });
+  }
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -60,6 +77,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _authService.signInWithEmail(email: email, password: password);
 
+      final user = _authService.currentUser;
+      if (user != null) {
+        await _handleSignedInUser(user);
+        return;
+      }
+
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(AppRoutes.roleRedirect);
     } catch (error) {
@@ -79,18 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      final user = _authService.currentUser;
-
-      if (user != null) {
-        await _userService.saveBasicUser(
-          uid: user.id,
-          name: user.userMetadata?['name']?.toString() ?? 'Warga Ecopayhood',
-          email: user.email ?? '',
-        );
-
-        if (!mounted) return;
-        Navigator.of(context).pushReplacementNamed(AppRoutes.roleRedirect);
-      } else {
+      if (_authService.currentUser == null) {
         _showSnackBar('Ikuti proses login Google di browser');
       }
     } catch (error) {
@@ -98,6 +110,20 @@ class _LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _handleSignedInUser(User user) async {
+    if (_hasRedirected) return;
+    _hasRedirected = true;
+
+    await _userService.saveBasicUser(
+      uid: user.id,
+      name: user.userMetadata?['name']?.toString() ?? 'Warga Ecopayhood',
+      email: user.email ?? '',
+    );
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed(AppRoutes.roleRedirect);
   }
 
   Widget _buildLabel(String text) {

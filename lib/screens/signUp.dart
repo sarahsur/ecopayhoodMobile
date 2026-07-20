@@ -1,6 +1,9 @@
 // ignore: file_names
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/routes/app_routes.dart';
 import '../services/auth_service.dart';
@@ -23,13 +26,26 @@ class _SignUpState extends State<SignUp> {
   final _passconfir = TextEditingController();
   final _authService = AuthService();
   final _userService = UserService();
+  StreamSubscription<AuthState>? _authSubscription;
 
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _hasRedirected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authSubscription = _authService.authStateChanges().listen((state) {
+      final user = state.session?.user;
+      if (user == null || _hasRedirected) return;
+      _handleSignedInUser(user);
+    });
+  }
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -188,18 +204,7 @@ class _SignUpState extends State<SignUp> {
         return;
       }
 
-      final user = _authService.currentUser;
-
-      if (user != null) {
-        await _userService.saveBasicUser(
-          uid: user.id,
-          name: user.userMetadata?['name']?.toString() ?? 'Warga Ecopayhood',
-          email: user.email ?? '',
-        );
-
-        if (!mounted) return;
-        Navigator.of(context).pushReplacementNamed(AppRoutes.roleRedirect);
-      } else {
+      if (_authService.currentUser == null) {
         _showSnackBar('Ikuti proses register Google di browser');
       }
     } catch (error) {
@@ -207,6 +212,20 @@ class _SignUpState extends State<SignUp> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _handleSignedInUser(User user) async {
+    if (_hasRedirected) return;
+    _hasRedirected = true;
+
+    await _userService.saveBasicUser(
+      uid: user.id,
+      name: user.userMetadata?['name']?.toString() ?? 'Warga Ecopayhood',
+      email: user.email ?? '',
+    );
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed(AppRoutes.roleRedirect);
   }
 
   @override
@@ -447,9 +466,9 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context).pushReplacementNamed(
-                                        AppRoutes.login,
-                                      );
+                                      Navigator.of(
+                                        context,
+                                      ).pushReplacementNamed(AppRoutes.login);
                                     },
                                     child: Text(
                                       'Masuk',
