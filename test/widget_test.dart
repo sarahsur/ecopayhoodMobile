@@ -1,9 +1,8 @@
-// This is a basic Flutter widget test.
+// Basic smoke test for the EcoPayhood app.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// The default template test (counter app with MyApp/'+' icon) was replaced
+// because this project's root widget is EcoPayhoodApp and it has no counter
+// UI — the app starts on SplashScreen and navigates on tap.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,20 +10,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ecopayhood/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('App launches and shows the Splash screen', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const EcoPayhoodApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // SplashScreen should be the first thing shown.
+    expect(find.text('EcoPayhood'), findsOneWidget);
+    expect(find.text('Hijau Bersama, Untung Bersama'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('Tapping the Splash screen navigates to Landing screen', (WidgetTester tester) async {
+    await tester.pumpWidget(const EcoPayhoodApp());
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Tap anywhere on the splash screen to trigger navigation.
+    await tester.tap(find.byType(GestureDetector));
+
+    // Let the fade transition (350ms) finish.
+    await tester.pumpAndSettle();
+
+    // LandingScreen shows the "Buat Akun" / "Masuk" buttons.
+    expect(find.text('Buat Akun'), findsOneWidget);
+    expect(find.text('Masuk'), findsOneWidget);
   });
 }

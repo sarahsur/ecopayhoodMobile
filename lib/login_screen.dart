@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dashboard_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -303,7 +304,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          _showSnackBar('Coming Soon');
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                              builder: (context) => const HomePage(),
+                                              settings: const RouteSettings(name: '/dashboard'),
+                                            ),
+                                          );
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color(

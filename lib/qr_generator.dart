@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrUserScreen extends StatelessWidget {
+  const QrUserScreen({super.key});
+
   // Contoh data user yang akan dimasukkan ke QR
   final String userId = "GRN-2026-0892";
   final String userName = "Andi Wijaya";

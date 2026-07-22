@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'qr_generator.dart';
+import 'dashboard_page.dart';
 
 class AddAddressPage extends StatefulWidget {
   const AddAddressPage({super.key});
@@ -133,7 +133,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => QrUserScreen()),
+                                    builder: (context) => const HomePage(),
+                                    settings: const RouteSettings(name: '/dashboard')),
                               );
                             },
                             child: const Text("Simpan & Konfirmasi"),

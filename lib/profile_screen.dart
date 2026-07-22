@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'landing_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -23,13 +24,13 @@ class ProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ── Green Header ──────────────────────────────────────────────
-            _GreenHeader(),
+            const _GreenHeader(),
 
             // ── 24px gap ─────────────────────────────────────────────────
             const SizedBox(height: 24),
 
             // ── Avatar + Username ─────────────────────────────────────────
-            _ProfileAvatar(),
+            const _ProfileAvatar(),
 
             const SizedBox(height: 12),
 
@@ -66,7 +67,7 @@ class ProfileScreen extends StatelessWidget {
             const Spacer(),
 
             // ── Logout Button ─────────────────────────────────────────────
-            _LogoutButton(),
+            const _LogoutButton(),
 
             const SizedBox(height: 36),
           ],
@@ -80,6 +81,8 @@ class ProfileScreen extends StatelessWidget {
 // _GreenHeader
 // ---------------------------------------------------------------------------
 class _GreenHeader extends StatelessWidget {
+  const _GreenHeader();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -125,6 +128,8 @@ class _GreenHeader extends StatelessWidget {
 // _ProfileAvatar
 // ---------------------------------------------------------------------------
 class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar();
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -218,6 +223,8 @@ class ProfileMenuTile extends StatelessWidget {
 // _LogoutButton
 // ---------------------------------------------------------------------------
 class _LogoutButton extends StatelessWidget {
+  const _LogoutButton();
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -240,7 +247,15 @@ class _LogoutButton extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(28),
             onTap: () {
-              // TODO: wire up logout logic
+              // Logout: hapus seluruh halaman setelah login dari stack
+              // (Dashboard, Profile, dll) dan jadikan LandingScreen sebagai
+              // root baru. Predicate `(route) => false` berarti tidak ada
+              // route lama yang dipertahankan, jadi tombol back tidak bisa
+              // kembali ke Dashboard.
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const LandingScreen()),
+                (route) => false,
+              );
             },
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,

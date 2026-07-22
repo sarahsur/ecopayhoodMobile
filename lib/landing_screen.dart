@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ecopayhood/login_screen.dart';
+import 'login_screen.dart';
 import 'signUp.dart';
 
 class LandingScreen extends StatelessWidget {
